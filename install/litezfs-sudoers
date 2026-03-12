@@ -1,20 +1,17 @@
 # /etc/sudoers.d/litezfs
 # Allows the litezfs service user to run ZFS and SMART commands without a password
+# Covers both /sbin and /usr/sbin paths (varies by distro)
 # Install: sudo cp litezfs-sudoers /etc/sudoers.d/litezfs && sudo chmod 440 /etc/sudoers.d/litezfs
 
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs list *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs get *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs snapshot *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs rollback *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs create *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs destroy *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs set *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs send *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zfs diff *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zpool list *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zpool status *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zpool iostat *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zpool scrub *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zpool import *
-litezfs ALL=(ALL) NOPASSWD: /sbin/zpool export *
+litezfs ALL=(ALL) NOPASSWD: /usr/sbin/zfs *
+litezfs ALL=(ALL) NOPASSWD: /usr/sbin/zfs
+litezfs ALL=(ALL) NOPASSWD: /usr/sbin/zpool *
+litezfs ALL=(ALL) NOPASSWD: /usr/sbin/zpool
+litezfs ALL=(ALL) NOPASSWD: /sbin/zfs *
+litezfs ALL=(ALL) NOPASSWD: /sbin/zfs
+litezfs ALL=(ALL) NOPASSWD: /sbin/zpool *
+litezfs ALL=(ALL) NOPASSWD: /sbin/zpool
 litezfs ALL=(ALL) NOPASSWD: /usr/sbin/smartctl *
+litezfs ALL=(ALL) NOPASSWD: /usr/sbin/smartctl
+litezfs ALL=(ALL) NOPASSWD: /sbin/smartctl *
+litezfs ALL=(ALL) NOPASSWD: /sbin/smartctl
