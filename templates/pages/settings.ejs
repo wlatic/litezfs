@@ -1,0 +1,122 @@
+<%- include('../partials/layout-top') %>
+
+<div class="space-y-6">
+  <h2 class="text-xl font-semibold text-white">Settings</h2>
+
+  <!-- About / System Info -->
+  <div class="bg-surface-800 rounded-xl border border-surface-600 p-6">
+    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">About</h3>
+    <div class="space-y-3 text-sm">
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">LiteZFS Version</span>
+        <span class="text-white font-mono">0.1.0</span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">ZFS Version</span>
+        <span class="text-white font-mono"><%= systemInfo ? systemInfo.zfsVersion : '—' %></span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">Kernel</span>
+        <span class="text-white font-mono"><%= systemInfo ? systemInfo.kernelVersion : '—' %></span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">Port</span>
+        <span class="text-white font-mono">26619</span>
+      </div>
+      <div class="flex items-center justify-between py-2">
+        <span class="text-gray-400">Config Location</span>
+        <span class="text-white font-mono text-xs">/etc/litezfs/config.yaml</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Thresholds -->
+  <div class="bg-surface-800 rounded-xl border border-surface-600 p-6">
+    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Alert Thresholds</h3>
+    <p class="text-xs text-gray-500 mb-4">Configure in <code class="text-accent-light">/etc/litezfs/config.yaml</code></p>
+    <div class="space-y-3 text-sm">
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">Space Warning</span>
+        <span class="text-yellow-400 font-semibold"><%= config ? config.alerts.spaceWarningPercent : 80 %>%</span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">Space Critical</span>
+        <span class="text-red-400 font-semibold"><%= config ? config.alerts.spaceCriticalPercent : 90 %>%</span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">Temperature Warning</span>
+        <span class="text-yellow-400 font-semibold"><%= config ? config.alerts.tempWarningCelsius : 50 %>&deg;C</span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-surface-700">
+        <span class="text-gray-400">Temperature Critical</span>
+        <span class="text-red-400 font-semibold"><%= config ? config.alerts.tempCriticalCelsius : 60 %>&deg;C</span>
+      </div>
+      <div class="flex items-center justify-between py-2">
+        <span class="text-gray-400">Scrub Max Age</span>
+        <span class="text-blue-400 font-semibold"><%= config ? config.alerts.scrubMaxAgeDays : 30 %> days</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scheduled Snapshots -->
+  <div class="bg-surface-800 rounded-xl border border-surface-600 p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Scheduled Snapshots</h3>
+    </div>
+    <% if (config && config.scheduler && config.scheduler.snapshots && config.scheduler.snapshots.length > 0) { %>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-surface-700">
+            <th class="text-left py-2 text-xs text-gray-500 uppercase tracking-wider">Dataset</th>
+            <th class="text-left py-2 text-xs text-gray-500 uppercase tracking-wider">Schedule</th>
+            <th class="text-left py-2 text-xs text-gray-500 uppercase tracking-wider">Template</th>
+            <th class="text-right py-2 text-xs text-gray-500 uppercase tracking-wider">Retain</th>
+            <th class="text-center py-2 text-xs text-gray-500 uppercase tracking-wider">Recursive</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-700">
+          <% config.scheduler.snapshots.forEach(function(s) { %>
+            <tr class="hover:bg-surface-700/50">
+              <td class="py-2 text-gray-300 font-mono"><%= s.dataset %></td>
+              <td class="py-2 text-gray-400 font-mono"><%= s.schedule %></td>
+              <td class="py-2 text-gray-400 font-mono"><%= s.nameTemplate %></td>
+              <td class="py-2 text-right text-gray-300"><%= s.retain %></td>
+              <td class="py-2 text-center text-gray-400"><%= s.recursive ? 'Yes' : 'No' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="text-sm text-gray-500">No scheduled snapshots configured. Add them to <code class="text-accent-light">/etc/litezfs/config.yaml</code></p>
+    <% } %>
+  </div>
+
+  <!-- Scheduled Scrubs -->
+  <div class="bg-surface-800 rounded-xl border border-surface-600 p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Scheduled Scrubs</h3>
+    </div>
+    <% if (config && config.scheduler && config.scheduler.scrubs && config.scheduler.scrubs.length > 0) { %>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-surface-700">
+            <th class="text-left py-2 text-xs text-gray-500 uppercase tracking-wider">Pool</th>
+            <th class="text-left py-2 text-xs text-gray-500 uppercase tracking-wider">Schedule</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-700">
+          <% config.scheduler.scrubs.forEach(function(s) { %>
+            <tr class="hover:bg-surface-700/50">
+              <td class="py-2 text-gray-300 font-mono"><%= s.pool %></td>
+              <td class="py-2 text-gray-400 font-mono"><%= s.schedule %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="text-sm text-gray-500">No scheduled scrubs configured. Add them to <code class="text-accent-light">/etc/litezfs/config.yaml</code></p>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/layout-bottom') %>

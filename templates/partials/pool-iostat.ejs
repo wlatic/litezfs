@@ -1,0 +1,22 @@
+<% if (iostat) { %>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div>
+      <div class="text-xs text-gray-500 uppercase tracking-wider">Read Ops</div>
+      <div class="text-lg font-semibold text-white mt-1"><%= iostat.readOps.toLocaleString() %>/s</div>
+    </div>
+    <div>
+      <div class="text-xs text-gray-500 uppercase tracking-wider">Write Ops</div>
+      <div class="text-lg font-semibold text-white mt-1"><%= iostat.writeOps.toLocaleString() %>/s</div>
+    </div>
+    <div>
+      <div class="text-xs text-gray-500 uppercase tracking-wider">Read BW</div>
+      <div class="text-lg font-semibold text-white mt-1"><%= helpers.formatBytes(iostat.readBw) %>/s</div>
+    </div>
+    <div>
+      <div class="text-xs text-gray-500 uppercase tracking-wider">Write BW</div>
+      <div class="text-lg font-semibold text-white mt-1"><%= helpers.formatBytes(iostat.writeBw) %>/s</div>
+    </div>
+  </div>
+<% } else { %>
+  <p class="text-gray-500 text-sm">No I/O statistics available</p>
+<% } %>

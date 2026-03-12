@@ -1,0 +1,148 @@
+<%- include('../partials/layout-top') %>
+
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-semibold text-white">Datasets</h2>
+    <div class="flex items-center gap-3">
+      <select class="px-3 py-1.5 rounded-lg bg-surface-700 border border-surface-600 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-accent"
+        onchange="window.location.href='/datasets' + (this.value ? '?pool=' + this.value : '')">
+        <option value="">All Pools</option>
+        <% pools.forEach(function(p) { %>
+          <option value="<%= p.name %>"<%= selectedPool === p.name ? ' selected' : '' %>><%= p.name %></option>
+        <% }) %>
+      </select>
+      <button onclick="document.getElementById('create-dataset-modal').classList.remove('hidden')" class="px-4 py-2 text-sm rounded-lg bg-accent hover:bg-accent/80 text-white transition-colors">
+        Create Dataset
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-surface-800 rounded-xl border border-surface-600 overflow-hidden">
+    <div id="dataset-table" hx-get="/partials/dataset-table<%= selectedPool ? '?pool=' + selectedPool : '' %>" hx-trigger="every 10s" hx-swap="innerHTML">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-surface-600">
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Used</th>
+            <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Available</th>
+            <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Refer</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Mountpoint</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Compression</th>
+            <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quota</th>
+            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-700">
+          <% if (datasets.length === 0) { %>
+            <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">No datasets found</td></tr>
+          <% } %>
+          <% datasets.forEach(function(ds) {
+            var indent = helpers.indentLevel(ds.name);
+          %>
+            <tr class="hover:bg-surface-700/50 transition-colors">
+              <td class="px-4 py-3 text-white font-mono text-sm" style="padding-left: <%= 16 + indent * 20 %>px">
+                <% if (indent > 0) { %><span class="text-gray-600 mr-1">&mdash;</span><% } %>
+                <%= ds.shortName %>
+              </td>
+              <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(ds.used) %></td>
+              <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(ds.available) %></td>
+              <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(ds.refer) %></td>
+              <td class="px-4 py-3 text-gray-400 font-mono text-sm"><%= ds.mountpoint %></td>
+              <td class="px-4 py-3 text-gray-400"><%= ds.compression %> (<%= ds.compressratio %>x)</td>
+              <td class="px-4 py-3 text-right text-gray-400"><%= ds.quota > 0 ? helpers.formatBytes(ds.quota) : 'none' %></td>
+              <td class="px-4 py-3 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button class="text-xs px-2 py-1 rounded bg-surface-700 text-gray-400 hover:text-white hover:bg-surface-600 transition-colors" title="Create Snapshot" hx-post="/api/snapshots" hx-vals='{"dataset": "<%= ds.name %>", "name": "manual_<%= new Date().toISOString().split("T")[0] %>"}' hx-swap="none" hx-confirm="Create a snapshot of <%= ds.name %>?">Snap</button>
+                  <% if (indent > 0) { %>
+                    <button class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors" title="Destroy" onclick="showDestroyDataset('<%= ds.name %>')">Destroy</button>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create Dataset Modal -->
+  <div id="create-dataset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div class="bg-surface-800 rounded-xl border border-surface-600 p-6 w-full max-w-lg mx-4">
+      <h3 class="text-lg font-semibold text-white mb-4">Create Dataset</h3>
+      <form id="create-dataset-form" hx-post="/api/datasets" hx-swap="none" hx-on::after-request="if(event.detail.successful){document.getElementById('create-dataset-modal').classList.add('hidden');window.location.reload()}">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Pool</label>
+            <select name="pool" class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+              <% pools.forEach(function(p) { %>
+                <option value="<%= p.name %>"><%= p.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Dataset Name</label>
+            <input type="text" name="name" required class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent" placeholder="my-dataset">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Compression</label>
+              <select name="compression" class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                <option value="lz4">lz4</option>
+                <option value="zstd">zstd</option>
+                <option value="gzip">gzip</option>
+                <option value="off">off</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Quota</label>
+              <input type="text" name="quota" class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent" placeholder="e.g. 100G or none">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Reservation</label>
+              <input type="text" name="reservation" class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent" placeholder="e.g. 50G or none">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Mountpoint</label>
+              <input type="text" name="mountpoint" class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent" placeholder="auto">
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" onclick="document.getElementById('create-dataset-modal').classList.add('hidden')" class="px-4 py-2 text-sm rounded-lg bg-surface-700 hover:bg-surface-600 text-gray-300 transition-colors">Cancel</button>
+          <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-accent hover:bg-accent/80 text-white transition-colors">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Destroy Dataset Modal -->
+  <div id="destroy-dataset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div class="bg-surface-800 rounded-xl border border-surface-600 p-6 w-full max-w-md mx-4">
+      <h3 class="text-lg font-semibold text-white mb-2">Destroy Dataset</h3>
+      <p class="text-sm text-gray-400 mb-1">This will permanently delete the dataset and all its data.</p>
+      <p class="text-sm text-gray-400 mb-4">Type the dataset name to confirm: <code id="destroy-ds-name" class="text-red-400"></code></p>
+      <input type="text" id="destroy-confirm-input" class="w-full px-3 py-2 rounded-lg bg-surface-700 border border-surface-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-4" placeholder="Type dataset name to confirm">
+      <div class="flex justify-end gap-3">
+        <button onclick="document.getElementById('destroy-dataset-modal').classList.add('hidden')" class="px-4 py-2 text-sm rounded-lg bg-surface-700 hover:bg-surface-600 text-gray-300 transition-colors">Cancel</button>
+        <button id="destroy-confirm-btn" class="px-4 py-2 text-sm rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors">Destroy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showDestroyDataset(name) {
+  document.getElementById('destroy-ds-name').textContent = name;
+  document.getElementById('destroy-confirm-input').value = '';
+  document.getElementById('destroy-dataset-modal').classList.remove('hidden');
+  document.getElementById('destroy-confirm-btn').onclick = function() {
+    if (document.getElementById('destroy-confirm-input').value === name) {
+      fetch('/api/datasets/' + encodeURIComponent(name), { method: 'DELETE' }).then(function() { window.location.reload(); });
+    }
+  };
+}
+</script>
+
+<%- include('../partials/layout-bottom') %>

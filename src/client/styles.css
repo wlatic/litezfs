@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface-900 text-gray-200;
+  }
+}
+
+@layer components {
+  .capacity-bar {
+    @apply h-2 rounded-full bg-surface-600 overflow-hidden;
+  }
+  .capacity-bar-fill {
+    @apply h-full rounded-full transition-all duration-500;
+  }
+}

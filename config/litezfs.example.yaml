@@ -1,0 +1,37 @@
+# LiteZFS Configuration
+# Copy to /etc/litezfs/config.yaml or config/litezfs.yaml
+
+server:
+  port: 26619               # Z=26, F=6, S=19
+  host: "0.0.0.0"           # Bind address (use 127.0.0.1 for local only)
+  sessionSecret: "CHANGE-ME-TO-A-RANDOM-STRING"
+
+auth:
+  username: "admin"
+  # Generate with: node -e "require('bcrypt').hash('yourpassword', 12).then(h => console.log(h))"
+  passwordHash: ""           # Leave empty to use default password "litezfs"
+
+alerts:
+  spaceWarningPercent: 80    # Warn when pool is this full
+  spaceCriticalPercent: 90   # Critical when pool is this full
+  tempWarningCelsius: 50     # Warn when disk temp exceeds this
+  tempCriticalCelsius: 60    # Critical when disk temp exceeds this
+  scrubMaxAgeDays: 30        # Info alert if scrub not run in this many days
+
+cache:
+  poolListTtl: 5             # Seconds to cache pool list
+  datasetListTtl: 5          # Seconds to cache dataset list
+  propertiesTtl: 30          # Seconds to cache dataset properties
+  smartTtl: 300              # Seconds to cache SMART data (5 minutes)
+  systemStatsTtl: 10         # Seconds to cache system stats
+
+# scheduler:
+#   snapshots:
+#     - dataset: "zfs/data"
+#       schedule: "0 4 * * *"     # Daily at 4am
+#       nameTemplate: "auto_%Y-%m-%d_%H%M"
+#       recursive: true
+#       retain: 7                  # Keep last 7 snapshots
+#   scrubs:
+#     - pool: "zfs"
+#       schedule: "0 2 * * 0"     # Weekly on Sunday at 2am

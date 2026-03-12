@@ -1,0 +1,65 @@
+<%- include('../partials/layout-top') %>
+
+<div class="space-y-6">
+  <h2 class="text-xl font-semibold text-white">Pools</h2>
+
+  <% if (pools.length === 0) { %>
+    <div class="bg-surface-800 rounded-xl border border-surface-600 p-8 text-center">
+      <p class="text-gray-500">No ZFS pools found</p>
+    </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 gap-4">
+    <% pools.forEach(function(pool) { %>
+      <a href="/pools/<%= pool.name %>" class="bg-surface-800 rounded-xl border border-surface-600 p-5 hover:border-accent/50 transition-colors block">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <h3 class="text-lg font-semibold text-white"><%= pool.name %></h3>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full <%= helpers.healthDot(pool.health) %>"></span>
+              <span class="<%= helpers.healthColor(pool.health) %> text-sm"><%= pool.health %></span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="px-3 py-1.5 text-sm rounded-lg bg-surface-700 text-gray-400">
+              View Details &rarr;
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+          <div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider">Size</div>
+            <div class="text-sm font-medium text-white mt-1"><%= helpers.formatBytes(pool.size) %></div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider">Used</div>
+            <div class="text-sm font-medium text-white mt-1"><%= helpers.formatBytes(pool.allocated) %> (<%= pool.capacity %>%)</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider">Free</div>
+            <div class="text-sm font-medium text-white mt-1"><%= helpers.formatBytes(pool.free) %></div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider">Fragmentation</div>
+            <div class="text-sm font-medium text-white mt-1"><%= pool.fragmentation %>%</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider">Dedup</div>
+            <div class="text-sm font-medium text-white mt-1"><%= pool.dedup %>x</div>
+          </div>
+        </div>
+
+        <div class="h-2 rounded-full bg-surface-600 overflow-hidden">
+          <div class="h-full rounded-full <%= helpers.capacityColor(pool.capacity) %>" style="width: <%= pool.capacity %>%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span><%= pool.capacity %>% used</span>
+          <span><%= helpers.formatBytes(pool.free) %> free</span>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+</div>
+
+<%- include('../partials/layout-bottom') %>

@@ -1,0 +1,9 @@
+<div id="terminal-drawer" class="terminal-drawer fixed bottom-0 left-0 right-0 h-[40vh] bg-surface-900 border-t border-surface-600 transform translate-y-full z-50">
+  <div class="flex items-center justify-between px-4 py-2 bg-surface-800 border-b border-surface-600">
+    <span class="text-sm font-medium text-gray-300">Terminal</span>
+    <button id="terminal-drawer-close" onclick="document.getElementById('terminal-drawer').classList.remove('translate-y-0');document.getElementById('terminal-drawer').classList.add('translate-y-full');" class="text-gray-400 hover:text-white">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="terminal-drawer-content" class="h-[calc(40vh-40px)]"></div>
+</div>

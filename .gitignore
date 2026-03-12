@@ -1,0 +1,6 @@
+node_modules/
+dist/
+public/css/app.css
+public/js/*.bundle.js
+public/js/*.bundle.js.map
+*.tsbuildinfo

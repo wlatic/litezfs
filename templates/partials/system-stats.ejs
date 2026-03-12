@@ -1,0 +1,26 @@
+<h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">System</h3>
+<div class="space-y-4">
+  <div>
+    <div class="flex justify-between text-xs mb-1">
+      <span class="text-gray-500">ARC</span>
+      <span class="text-gray-400"><%= helpers.formatBytes(stats.arc.size) %> / <%= helpers.formatBytes(stats.arc.maxSize) %></span>
+    </div>
+    <div class="h-1.5 rounded-full bg-surface-600 overflow-hidden">
+      <div class="h-full rounded-full bg-blue-500" style="width: <%= Math.round(stats.arc.size / stats.arc.maxSize * 100) %>%"></div>
+    </div>
+    <div class="text-xs text-gray-500 mt-1">Hit ratio: <%= stats.arc.hitRatio %>%</div>
+  </div>
+  <div>
+    <div class="flex justify-between text-xs mb-1">
+      <span class="text-gray-500">Memory</span>
+      <span class="text-gray-400"><%= helpers.formatBytes(stats.memory.used) %> / <%= helpers.formatBytes(stats.memory.total) %></span>
+    </div>
+    <div class="h-1.5 rounded-full bg-surface-600 overflow-hidden">
+      <div class="h-full rounded-full bg-purple-500" style="width: <%= Math.round(stats.memory.used / stats.memory.total * 100) %>%"></div>
+    </div>
+  </div>
+  <div class="pt-2 border-t border-surface-700 text-xs text-gray-500 space-y-1">
+    <div>ZFS <%= stats.zfsVersion %></div>
+    <div>Linux <%= stats.kernelVersion %></div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+{
+  "name": "litezfs",
+  "version": "0.1.0",
+  "description": "Lightweight web-based ZFS management UI with embedded terminal and AI assistant",
+  "type": "module",
+  "main": "dist/server/index.js",
+  "scripts": {
+    "build": "npm run build:server && npm run build:client && npm run build:css",
+    "build:server": "tsc -p tsconfig.json",
+    "build:client": "node --loader ts-node/esm esbuild.config.ts",
+    "build:css": "tailwindcss -i src/client/styles.css -o public/css/app.css --minify",
+    "dev": "npm run build:client && npm run build:css && tsx --watch src/server/index.ts",
+    "start": "node dist/server/index.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.client.json"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.1",
+    "express-session": "^1.18.0",
+    "helmet": "^7.1.0",
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.0",
+    "@types/node": "^22.5.0",
+    "@types/ws": "^8.5.12",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/addon-webgl": "^0.18.0",
+    "@xterm/xterm": "^5.5.0",
+    "esbuild": "^0.23.1",
+    "tailwindcss": "^3.4.10",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,48 @@
+<table class="w-full text-sm">
+  <thead>
+    <tr class="border-b border-surface-600">
+      <th class="text-left px-4 py-3 w-8">
+        <input type="checkbox" id="select-all-snaps" class="rounded bg-surface-700 border-surface-600" onchange="document.querySelectorAll('.snap-checkbox').forEach(function(cb){cb.checked=this.checked}.bind(this))">
+      </th>
+      <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Snapshot</th>
+      <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Dataset</th>
+      <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Used</th>
+      <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Refer</th>
+      <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+      <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="divide-y divide-surface-700">
+    <% if (snapshots.length === 0) { %>
+      <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">No snapshots found</td></tr>
+    <% } %>
+    <% for (const snap of snapshots) { %>
+      <tr class="hover:bg-surface-700/50 transition-colors">
+        <td class="px-4 py-3">
+          <input type="checkbox" class="snap-checkbox rounded bg-surface-700 border-surface-600" value="<%= snap.fullName %>">
+        </td>
+        <td class="px-4 py-3 text-white font-mono text-sm"><%= snap.name %></td>
+        <td class="px-4 py-3 text-gray-400 font-mono text-sm"><%= snap.dataset %></td>
+        <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(snap.used) %></td>
+        <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(snap.refer) %></td>
+        <td class="px-4 py-3 text-gray-400">
+          <span title="<%= snap.creation %>"><%= helpers.formatDate(snap.creation) %></span>
+          <div class="text-xs text-gray-500"><%= helpers.timeAgo(snap.creation) %></div>
+        </td>
+        <td class="px-4 py-3 text-center">
+          <div class="flex items-center justify-center gap-2">
+            <button class="text-xs px-2 py-1 rounded bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors"
+              hx-post="/api/snapshots/<%= encodeURIComponent(snap.fullName) %>/rollback"
+              hx-swap="none"
+              hx-confirm="Rollback dataset <%= snap.dataset %> to snapshot <%= snap.name %>? This will revert all changes since the snapshot was taken.">Rollback</button>
+            <button class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+              hx-delete="/api/snapshots/<%= encodeURIComponent(snap.fullName) %>"
+              hx-swap="none"
+              hx-confirm="Destroy snapshot <%= snap.fullName %>? This cannot be undone."
+              hx-on::after-request="if(event.detail.successful){window.location.reload()}">Destroy</button>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>

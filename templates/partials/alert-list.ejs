@@ -1,0 +1,13 @@
+<% if (alerts.length === 0) { %>
+  <p class="text-gray-500 text-sm">No active alerts</p>
+<% } else { %>
+  <% for (const alert of alerts) { %>
+    <div class="flex items-start gap-3 p-3 rounded-lg border <%= helpers.severityBadge(alert.severity) %> mb-2">
+      <div class="flex-1">
+        <div class="font-medium text-sm"><%= alert.title %></div>
+        <div class="text-xs mt-1 opacity-80"><%= alert.message %></div>
+      </div>
+      <span class="text-xs opacity-60 shrink-0"><%= helpers.timeAgo(alert.timestamp) %></span>
+    </div>
+  <% } %>
+<% } %>

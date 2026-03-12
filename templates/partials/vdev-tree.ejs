@@ -1,0 +1,25 @@
+<% if (!vdevs || vdevs.length === 0) { %>
+  <p class="text-gray-500 text-sm">No vdev information available</p>
+<% } else { %>
+  <% for (const vdev of vdevs) { %>
+    <div class="mb-4 last:mb-0">
+      <div class="flex items-center gap-2 py-2 px-3 bg-surface-700 rounded-lg">
+        <span class="w-2 h-2 rounded-full <%= helpers.healthDot(vdev.health) %>"></span>
+        <span class="text-white font-mono text-sm font-medium"><%= vdev.name %></span>
+        <span class="text-xs px-2 py-0.5 rounded bg-surface-600 text-gray-400"><%= vdev.type %></span>
+        <span class="<%= helpers.healthColor(vdev.health) %> text-xs ml-auto"><%= vdev.health %></span>
+      </div>
+      <% if (vdev.children.length > 0) { %>
+        <div class="ml-6 mt-1 space-y-1 border-l-2 border-surface-600 pl-4">
+          <% for (const disk of vdev.children) { %>
+            <div class="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-surface-700/50">
+              <span class="w-1.5 h-1.5 rounded-full <%= helpers.healthDot(disk.health) %>"></span>
+              <span class="text-gray-300 font-mono text-sm"><%= disk.name %></span>
+              <span class="<%= helpers.healthColor(disk.health) %> text-xs ml-auto"><%= disk.health %></span>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+<% } %>

@@ -1,0 +1,47 @@
+<table class="w-full text-sm">
+  <thead>
+    <tr class="border-b border-surface-600">
+      <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+      <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Used</th>
+      <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Available</th>
+      <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Refer</th>
+      <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Mountpoint</th>
+      <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Compression</th>
+      <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quota</th>
+      <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="divide-y divide-surface-700">
+    <% if (datasets.length === 0) { %>
+      <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">No datasets found</td></tr>
+    <% } %>
+    <% for (const ds of datasets) { %>
+      <% const indent = helpers.indentLevel(ds.name); %>
+      <tr class="hover:bg-surface-700/50 transition-colors">
+        <td class="px-4 py-3 text-white font-mono text-sm" style="padding-left: <%= 16 + indent * 20 %>px">
+          <% if (indent > 0) { %><span class="text-gray-600 mr-1">&mdash;</span><% } %>
+          <%= ds.shortName %>
+        </td>
+        <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(ds.used) %></td>
+        <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(ds.available) %></td>
+        <td class="px-4 py-3 text-right text-gray-300"><%= helpers.formatBytes(ds.refer) %></td>
+        <td class="px-4 py-3 text-gray-400 font-mono text-sm"><%= ds.mountpoint %></td>
+        <td class="px-4 py-3 text-gray-400"><%= ds.compression %> (<%= ds.compressratio %>x)</td>
+        <td class="px-4 py-3 text-right text-gray-400"><%= ds.quota > 0 ? helpers.formatBytes(ds.quota) : 'none' %></td>
+        <td class="px-4 py-3 text-center">
+          <div class="flex items-center justify-center gap-2">
+            <button class="text-xs px-2 py-1 rounded bg-surface-700 text-gray-400 hover:text-white hover:bg-surface-600 transition-colors" title="Create Snapshot"
+              hx-post="/api/snapshots"
+              hx-vals='{"dataset": "<%= ds.name %>", "name": "manual_<%= new Date().toISOString().split("T")[0] %>"}'
+              hx-swap="none"
+              hx-confirm="Create a snapshot of <%= ds.name %>?">Snap</button>
+            <% if (indent > 0) { %>
+              <button class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors" title="Destroy"
+                onclick="showDestroyDataset('<%= ds.name %>')">Destroy</button>
+            <% } %>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>

@@ -1,0 +1,28 @@
+[Unit]
+Description=LiteZFS — Web-based ZFS Management
+After=network.target zfs.target
+Wants=zfs.target
+
+[Service]
+Type=simple
+User=litezfs
+Group=litezfs
+WorkingDirectory=/opt/litezfs
+ExecStart=/usr/bin/node dist/server/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=no
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/litezfs
+PrivateTmp=yes
+
+# Environment
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,72 @@
+<%- include('../partials/layout-top') %>
+
+<div class="space-y-6">
+  <h2 class="text-xl font-semibold text-white">Dashboard</h2>
+
+  <!-- Pool Cards -->
+  <div id="pool-cards" hx-get="/partials/pool-cards" hx-trigger="every 5s" hx-swap="innerHTML">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% pools.forEach(function(pool) { %>
+        <a href="/pools/<%= pool.name %>" class="bg-surface-800 rounded-xl border border-surface-600 p-5 hover:border-accent/50 transition-colors block">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-white"><%= pool.name %></h3>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full <%= helpers.healthDot(pool.health) %>"></span>
+              <span class="<%= helpers.healthColor(pool.health) %> text-sm font-medium"><%= pool.health %></span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-400">Used</span>
+              <span class="text-gray-300"><%= helpers.formatBytes(pool.allocated) %> / <%= helpers.formatBytes(pool.size) %></span>
+            </div>
+            <div class="h-2 rounded-full bg-surface-600 overflow-hidden">
+              <div class="h-full rounded-full <%= helpers.capacityColor(pool.capacity) %> transition-all duration-500" style="width: <%= pool.capacity %>%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500">
+              <span><%= pool.capacity %>% used</span>
+              <span><%= helpers.formatBytes(pool.free) %> free</span>
+            </div>
+          </div>
+          <div class="mt-3 flex gap-4 text-xs text-gray-500">
+            <span>Frag: <%= pool.fragmentation %>%</span>
+            <span>Dedup: <%= pool.dedup %>x</span>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Alerts -->
+    <div class="lg:col-span-2">
+      <div class="bg-surface-800 rounded-xl border border-surface-600 p-5">
+        <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Active Alerts</h3>
+        <div id="alerts-list" hx-get="/partials/alerts" hx-trigger="every 10s" hx-swap="innerHTML">
+          <% if (alerts.length === 0) { %>
+            <p class="text-gray-500 text-sm">No active alerts</p>
+          <% } else { %>
+            <% alerts.forEach(function(alert) { %>
+              <div class="flex items-start gap-3 p-3 rounded-lg border <%= helpers.severityBadge(alert.severity) %> mb-2">
+                <div class="flex-1">
+                  <div class="font-medium text-sm"><%= alert.title %></div>
+                  <div class="text-xs mt-1 opacity-80"><%= alert.message %></div>
+                </div>
+                <span class="text-xs opacity-60 shrink-0"><%= helpers.timeAgo(alert.timestamp) %></span>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Stats -->
+    <div>
+      <div class="bg-surface-800 rounded-xl border border-surface-600 p-5" hx-get="/partials/system-stats" hx-trigger="every 10s" hx-swap="innerHTML">
+        <%- include('../partials/system-stats', { stats: { arc: { size: 4509715660, maxSize: 8589934592, hitRatio: 94.2 }, memory: { total: 34359738368, used: 12884901888 }, zfsVersion: '2.2.4', kernelVersion: '6.17.9-1-pve' }, helpers: helpers }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/layout-bottom') %>

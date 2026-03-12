@@ -1,0 +1,116 @@
+<%- include('../partials/layout-top') %>
+
+<div class="space-y-6">
+  <h2 class="text-xl font-semibold text-white">Disk Health</h2>
+
+  <% if (disks.length === 0) { %>
+    <div class="bg-surface-800 rounded-xl border border-surface-600 p-8 text-center">
+      <p class="text-gray-500">No disks detected</p>
+    </div>
+  <% } %>
+
+  <div id="disk-cards" hx-get="/partials/disk-cards" hx-trigger="every 60s" hx-swap="innerHTML">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% disks.forEach(function(disk) {
+        var isSSD = disk.rotationRate === 0;
+      %>
+        <div class="bg-surface-800 rounded-xl border border-surface-600 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-semibold text-white"><%= disk.device %></h3>
+              <p class="text-xs text-gray-500 mt-0.5"><%= disk.model %></p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full <%= disk.health.passed ? 'bg-green-400' : 'bg-red-400' %>"></span>
+              <span class="text-xs <%= disk.health.passed ? 'text-green-400' : 'text-red-400' %>"><%= disk.health.passed ? 'PASSED' : 'FAILED' %></span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span class="text-gray-500">Capacity</span>
+              <div class="text-gray-300 mt-0.5"><%= helpers.formatBytes(disk.capacity) %></div>
+            </div>
+            <div>
+              <span class="text-gray-500">Temperature</span>
+              <div class="<%= helpers.tempColor(disk.health.temperature) %> mt-0.5 font-semibold"><%= disk.health.temperature %>&deg;C</div>
+            </div>
+            <div>
+              <span class="text-gray-500">Power On</span>
+              <div class="text-gray-300 mt-0.5"><%= helpers.formatDuration(disk.health.powerOnHours) %></div>
+            </div>
+            <div>
+              <span class="text-gray-500">Type</span>
+              <div class="text-gray-300 mt-0.5"><%= isSSD ? 'SSD' : disk.rotationRate + ' RPM' %></div>
+            </div>
+            <div>
+              <span class="text-gray-500">Serial</span>
+              <div class="text-gray-300 mt-0.5 font-mono"><%= disk.serial %></div>
+            </div>
+            <div>
+              <span class="text-gray-500">Pool</span>
+              <div class="text-gray-300 mt-0.5">
+                <% if (disk.zpoolMember) { %>
+                  <a href="/pools/<%= disk.zpoolMember %>" class="text-accent-light hover:underline"><%= disk.zpoolMember %></a>
+                <% } else { %>
+                  <span class="text-gray-500">None</span>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key SMART indicators -->
+          <div class="mt-3 pt-3 border-t border-surface-700 grid grid-cols-3 gap-2 text-xs">
+            <div class="text-center">
+              <div class="text-gray-500">Realloc</div>
+              <div class="font-semibold mt-0.5 <%= disk.health.reallocatedSectors > 0 ? (disk.health.reallocatedSectors > 100 ? 'text-red-400' : 'text-yellow-400') : 'text-green-400' %>"><%= disk.health.reallocatedSectors %></div>
+            </div>
+            <div class="text-center">
+              <div class="text-gray-500">Pending</div>
+              <div class="font-semibold mt-0.5 <%= disk.health.pendingSectors > 0 ? 'text-yellow-400' : 'text-green-400' %>"><%= disk.health.pendingSectors %></div>
+            </div>
+            <div class="text-center">
+              <div class="text-gray-500">Offline</div>
+              <div class="font-semibold mt-0.5 <%= disk.health.offlineUncorrectable > 0 ? 'text-red-400' : 'text-green-400' %>"><%= disk.health.offlineUncorrectable %></div>
+            </div>
+          </div>
+
+          <!-- Expandable SMART table -->
+          <details class="mt-3">
+            <summary class="text-xs text-accent-light cursor-pointer hover:underline">Show SMART attributes</summary>
+            <div class="mt-2 overflow-x-auto">
+              <table class="w-full text-xs">
+                <thead>
+                  <tr class="border-b border-surface-700">
+                    <th class="text-left py-1 pr-2 text-gray-500">ID</th>
+                    <th class="text-left py-1 pr-2 text-gray-500">Attribute</th>
+                    <th class="text-right py-1 pr-2 text-gray-500">Value</th>
+                    <th class="text-right py-1 pr-2 text-gray-500">Worst</th>
+                    <th class="text-right py-1 pr-2 text-gray-500">Thresh</th>
+                    <th class="text-right py-1 text-gray-500">Raw</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-700">
+                  <% disk.health.attributes.forEach(function(attr) {
+                    var failing = attr.value <= attr.thresh && attr.thresh > 0;
+                  %>
+                    <tr class="<%= failing ? 'bg-red-500/5' : '' %>">
+                      <td class="py-1 pr-2 text-gray-500"><%= attr.id %></td>
+                      <td class="py-1 pr-2 text-gray-300 font-mono"><%= attr.name %></td>
+                      <td class="py-1 pr-2 text-right text-gray-300"><%= attr.value %></td>
+                      <td class="py-1 pr-2 text-right text-gray-400"><%= attr.worst %></td>
+                      <td class="py-1 pr-2 text-right text-gray-500"><%= attr.thresh %></td>
+                      <td class="py-1 text-right <%= failing ? 'text-red-400 font-semibold' : 'text-gray-300' %>"><%= attr.rawValue.toLocaleString() %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/layout-bottom') %>

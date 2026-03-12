@@ -1,0 +1,30 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <% for (const pool of pools) { %>
+    <a href="/pools/<%= pool.name %>" class="bg-surface-800 rounded-xl border border-surface-600 p-5 hover:border-accent/50 transition-colors block">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold text-white"><%= pool.name %></h3>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full <%= helpers.healthDot(pool.health) %>"></span>
+          <span class="<%= helpers.healthColor(pool.health) %> text-sm font-medium"><%= pool.health %></span>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-400">Used</span>
+          <span class="text-gray-300"><%= helpers.formatBytes(pool.allocated) %> / <%= helpers.formatBytes(pool.size) %></span>
+        </div>
+        <div class="h-2 rounded-full bg-surface-600 overflow-hidden">
+          <div class="h-full rounded-full <%= helpers.capacityColor(pool.capacity) %> transition-all duration-500" style="width: <%= pool.capacity %>%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500">
+          <span><%= pool.capacity %>% used</span>
+          <span><%= helpers.formatBytes(pool.free) %> free</span>
+        </div>
+      </div>
+      <div class="mt-3 flex gap-4 text-xs text-gray-500">
+        <span>Frag: <%= pool.fragmentation %>%</span>
+        <span>Dedup: <%= pool.dedup %>x</span>
+      </div>
+    </a>
+  <% } %>
+</div>
