@@ -44,13 +44,14 @@ export function createTerminalServer(
 
   wss.on('connection', (ws: WebSocket) => {
     const sessionId = randomUUID();
-    const shell = process.env.SHELL || '/bin/bash';
+    // Always use /bin/bash — the service user may have /bin/false as shell
+    const shell = '/bin/bash';
 
     const ptyProcess = pty.spawn(shell, [], {
       name: 'xterm-256color',
       cols: 80,
       rows: 24,
-      cwd: process.env.HOME || '/root',
+      cwd: '/root',
       env: {
         ...process.env as Record<string, string>,
         TERM: 'xterm-256color',
