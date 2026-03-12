@@ -35,8 +35,10 @@ async function main() {
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         connectSrc: ["'self'", "ws:", "wss:"],
         imgSrc: ["'self'", "data:"],
+        upgradeInsecureRequests: null, // disable — we serve plain HTTP
       },
     },
+    hsts: false, // disable — we serve plain HTTP, not behind a TLS proxy
   }));
 
   // ---- Body parsing ----
